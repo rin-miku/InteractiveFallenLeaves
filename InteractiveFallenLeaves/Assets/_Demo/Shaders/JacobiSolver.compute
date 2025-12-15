@@ -1,0 +1,24 @@
+﻿#include "CommonUtility.cginc"
+
+#pragma kernel JacobiSolver
+
+StructuredBuffer<float4> RightHandSideBuffer;
+StructuredBuffer<float4> CurrentBuffer;
+RWStructuredBuffer<float4> ResultBuffer;
+
+float CenterFactor;
+float DiagonalFactor;
+
+[numthreads(8, 8, 1)]
+void JacobiSolver(uint3 id : SV_DispatchThreadID)
+{
+    int2 coord = id.xy;
+    
+    float4 center = RightHandSideBuffer[CoordToIndex(coord)];
+    float4 left = CurrentBuffer[CoordToIndex(coord - int2(1, 0))];
+    float4 right = CurrentBuffer[CoordToIndex(coord + int2(1, 0))];
+    float4 top = CurrentBuffer[CoordToIndex(coord + int2(0, 1))];
+    float4 bottom = CurrentBuffer[CoordToIndex(coord - int2(0, 1))];
+    
+    ResultBuffer[CoordToIndex(coord)] = (left + right + top + bottom + CenterFactor * center) * DiagonalFactor;
+}

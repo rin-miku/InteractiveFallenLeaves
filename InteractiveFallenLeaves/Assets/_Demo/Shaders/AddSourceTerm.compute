@@ -1,0 +1,77 @@
+#include "CommonUtility.cginc"
+
+#pragma kernel AddVelocity
+
+RWStructuredBuffer<float4> AddedVelocityBuffer; 
+
+float2 CurrentMousePosition;
+float2 PreviousMousePosition;
+float VelocityPressed;
+float VelocityEffectRadius;
+float VelocityFalloff;
+float VelocityMultiplier;
+
+float DrawDirectionalLineMask(float2 origin, float2 direction, float maxLength, float2 uv, float radius, float feather)
+{
+    float2 delta = uv - origin;
+    float projection = dot(direction, delta);
+    float2 nearestPoint = direction * projection;
+    float distToLine = distance(nearestPoint, delta);
+    
+    float isBehind = 1.0 - step(0.0, projection);
+    float isBeyondLength = smoothstep(maxLength, maxLength + feather * 0.5, projection);
+    float lineMask = smoothstep(radius, radius + feather, distToLine);
+    
+    return 1.0 - saturate(lineMask + isBehind + isBeyondLength);
+}
+
+[numthreads(8, 8, 1)]
+void AddVelocity (uint3 id : SV_DispatchThreadID)
+{
+    int2 coord = id.xy;
+    
+    float2 mouseMove = CurrentMousePosition - PreviousMousePosition;
+    float moveLength = length(mouseMove);
+    
+    if (moveLength < 1e-5)
+        return;
+    
+    float factor = DrawDirectionalLineMask(CurrentMousePosition, normalize(mouseMove), moveLength, coord, VelocityEffectRadius, VelocityFalloff);
+    float2 addedVelocity = factor * mouseMove * VelocityMultiplier;
+    addedVelocity *= VelocityPressed;
+    
+    AddedVelocityBuffer[CoordToIndex(coord)] += float4(addedVelocity, 0.0, 0.0);
+}
+
+
+#pragma kernel AddDensity
+
+RWStructuredBuffer<float4> AddedDensityBuffer;
+
+float4 DensityColor;
+float2 MousePosition;
+float DensityPressed;
+float DensityEffectRadius;
+float DensityFalloff;
+
+[numthreads(8, 8, 1)]
+void AddDensity(uint3 id : SV_DispatchThreadID)
+{
+    int2 coord = id.xy;
+    float2 temp = (float) id.xy / 512.0;
+    
+    float2 vectorToMouse = MousePosition - (float2)coord;
+    float distance = length(vectorToMouse);
+    
+    if (distance > DensityEffectRadius)
+        return;
+    
+    float densityAmout = 1 - smoothstep(DensityEffectRadius - DensityFalloff, DensityEffectRadius, distance);
+    
+    densityAmout *= DensityPressed;
+    
+    float4 oldValue = AddedDensityBuffer[CoordToIndex(coord)];
+    float3 newValue = lerp(oldValue.rgb, DensityColor.rgb, densityAmout);
+
+    AddedDensityBuffer[CoordToIndex(coord)] = float4(newValue, 1);
+}

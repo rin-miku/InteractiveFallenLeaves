@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 529548331a18e0c4c9d80d659a0b404f
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Prefabs/Source/Models/credits.txt
+  uploadId: 649404

@@ -1,0 +1,31 @@
+#include "CommonUtility.cginc"
+
+#pragma kernel DrawVelocity
+
+StructuredBuffer<float4> DrawVelocityBuffer;
+RWTexture2D<float4> VelocityTexture;
+
+[numthreads(8, 8, 1)]
+void DrawVelocity(uint3 id : SV_DispatchThreadID)
+{
+    float2 coord = (float2) id.xy / (float) (RenderResolution - 1);
+    coord *= (float) (SimulationResolution - 1);
+
+    float4 velocity = float4(BilinearInterpolation(DrawVelocityBuffer, coord).xy, 0, 1);
+    VelocityTexture[id.xy] = velocity;
+}
+
+#pragma kernel DrawDensity
+
+StructuredBuffer<float4> DrawDensityBuffer;
+RWTexture2D<float4> DensityTexture;
+
+[numthreads(8, 8, 1)]
+void DrawDensity(uint3 id : SV_DispatchThreadID)
+{
+    float2 coord = (float2) id.xy / (float) (RenderResolution - 1);
+    coord *= (float) (SimulationResolution - 1);
+
+    DensityTexture[id.xy] = BilinearInterpolation(DrawDensityBuffer, coord);
+}
+

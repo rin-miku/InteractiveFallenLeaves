@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4dbd62af2a25df34c9a8e8a7bcb2c370
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Scripts/ThirdPersonController.cs
+  uploadId: 649404

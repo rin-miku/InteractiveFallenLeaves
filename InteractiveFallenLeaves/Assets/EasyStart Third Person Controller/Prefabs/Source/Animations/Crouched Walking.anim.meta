@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: eba6a0ce1cd19db41a2a10acae406f98
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Prefabs/Source/Animations/Crouched
+    Walking.anim
+  uploadId: 649404

@@ -1,0 +1,21 @@
+#pragma kernel CopyStructuredBuffer
+
+StructuredBuffer<float4> CopySource;
+RWStructuredBuffer<float4> CopyDestination;
+
+[numthreads(128,1,1)]
+void CopyStructuredBuffer(uint3 id : SV_DispatchThreadID)
+{
+    CopyDestination[id.x] = CopySource[id.x];
+}
+
+#pragma kernel ClearStructuredBuffer
+
+float4 ClearValue;
+RWStructuredBuffer<float4> ClearBuffer;
+
+[numthreads(128, 1, 1)]
+void ClearStructuredBuffer(uint3 id : SV_DispatchThreadID)
+{
+    ClearBuffer[id.x] = ClearValue;
+}

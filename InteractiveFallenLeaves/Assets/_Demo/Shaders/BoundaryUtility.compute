@@ -1,0 +1,36 @@
+#include "CommonUtility.cginc"
+
+#pragma kernel Boundary
+
+float4 BoundaryScale;
+RWStructuredBuffer<float4> BoundaryBuffer;
+
+[numthreads(8,1,1)]
+void Boundary(uint3 id : SV_DispatchThreadID)
+{
+    int sideType = id.x / SimulationResolution;
+    int sideOffset = id.x % SimulationResolution;
+    
+    int2 coord, offsetCoord;
+    switch (sideType)
+    {
+        case 0:
+            coord = int2(0, sideOffset);
+            offsetCoord = coord + int2(1, 0);
+            break;
+        case 1:
+            coord = int2(SimulationResolution - 1, sideOffset);
+            offsetCoord = coord + int2(-1, 0);
+            break;
+        case 2:
+            coord = int2(sideOffset, SimulationResolution - 1);
+            offsetCoord = coord + int2(0, -1);
+            break;
+        case 3:
+            coord = int2(sideOffset, 0);
+            offsetCoord = coord + int2(0, 1);
+            break;
+    }
+
+    BoundaryBuffer[CoordToIndex(coord)] = BoundaryScale * BoundaryBuffer[CoordToIndex(offsetCoord)];
+}

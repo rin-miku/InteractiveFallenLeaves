@@ -1,0 +1,54 @@
+#include "CommonUtility.cginc"
+
+#pragma kernel Advect
+
+StructuredBuffer<float4> SourceBuffer;
+StructuredBuffer<float4> VelocityBuffer;
+RWStructuredBuffer<float4> AdvectedBuffer;
+float DissipationFactor;
+
+[numthreads(8, 8, 1)]
+void Advect(uint3 id : SV_DispatchThreadID)
+{
+    float2 coord = id.xy;
+    
+    float2 backwardCoord = coord - (DeltaTime * VelocityBuffer[CoordToIndex(coord)].xy / GridScale);
+    backwardCoord = clamp(backwardCoord, 0, SimulationResolution - 1);
+
+    AdvectedBuffer[CoordToIndex(coord)] = DissipationFactor * BilinearInterpolation(SourceBuffer, backwardCoord);
+}
+
+#pragma kernel CalculateDivergence
+
+StructuredBuffer<float4> RawBuffer;
+RWStructuredBuffer<float4> DivergenceBuffer;
+
+[numthreads(8, 8, 1)]
+void CalculateDivergence(uint3 id : SV_DispatchThreadID)
+{
+    int2 coord = id.xy;
+    
+    float4 left = RawBuffer[CoordToIndex(coord - int2(1, 0))];
+    float4 right = RawBuffer[CoordToIndex(coord + int2(1, 0))];
+    float4 top = RawBuffer[CoordToIndex(coord + int2(0, 1))];
+    float4 bottom = RawBuffer[CoordToIndex(coord - int2(0, 1))];
+    
+    DivergenceBuffer[CoordToIndex(coord)] = (right.x - left.x + top.y - bottom.y) / (2 * GridScale);
+}
+
+#pragma kernel CalculateFreeDivergence
+
+StructuredBuffer<float4> VelocityWithDivergenceBuffer;
+StructuredBuffer<float4> PressureBuffer;
+RWStructuredBuffer<float4> FreeDivergenceBuffer;
+
+[numthreads(8, 8, 1)]
+void CalculateFreeDivergence(uint3 id : SV_DispatchThreadID)
+{
+    int2 coord = id.xy;
+    int index = CoordToIndex(coord);
+    
+    float4 pressureGradient = Gradient(PressureBuffer, 2 * GridScale, coord);
+
+    FreeDivergenceBuffer[index] = VelocityWithDivergenceBuffer[index] - pressureGradient;
+}

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 04c30c34f007a1c479133d9b2ce53370
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Prefabs/Source/Animations/Crouched
+    Idle.anim
+  uploadId: 649404

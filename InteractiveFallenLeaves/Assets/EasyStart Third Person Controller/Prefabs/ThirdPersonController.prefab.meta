@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 268bbd229edfdba45a4d45903e472716
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Prefabs/ThirdPersonController.prefab
+  uploadId: 649404

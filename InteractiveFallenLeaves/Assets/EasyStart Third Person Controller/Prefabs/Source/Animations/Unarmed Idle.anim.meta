@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5b62c81c743e9794f833e95b87ad2c28
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Prefabs/Source/Animations/Unarmed
+    Idle.anim
+  uploadId: 649404

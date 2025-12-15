@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a493087513160d24c981f22885dd102e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 278977
+  packageName: EasyStart Third Person Controller
+  packageVersion: 1.0
+  assetPath: Assets/EasyStart Third Person Controller/Prefabs/Source/Animations/Slow
+    Run.anim
+  uploadId: 649404
