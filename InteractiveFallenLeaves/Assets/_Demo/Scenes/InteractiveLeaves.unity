@@ -153,7 +153,7 @@ MonoBehaviour:
   simulationResolution: 512
   fieldMin: {x: -5, y: -5}
   fieldSize: {x: 10, y: 10}
-  currentMousePosition: {x: 0, y: 0}
+  currentPosition: {x: 0, y: 0}
 --- !u!4 &199733518
 Transform:
   m_ObjectHideFlags: 0

@@ -12,11 +12,13 @@ public class FluidSimulation : MonoBehaviour
 
     private float velocityPressed;
     private float densityPressed;
-    [SerializeField]private Vector2 currentMousePosition;
+    [SerializeField]private Vector2 currentPosition;
 
     private void Update()
     {
-        if (characterController.velocity.magnitude > 1e-5)
+        float jumpVelocity = characterController.velocity.y;
+        Vector2 moveVelocity = new Vector2(characterController.velocity.x, characterController.velocity.z);
+        if (moveVelocity.magnitude > 1e-5 && Mathf.Abs(jumpVelocity) < 0.01f)
         {
             velocityPressed = 1;
         }
@@ -25,34 +27,15 @@ public class FluidSimulation : MonoBehaviour
             velocityPressed = 0;
         }
 
-        currentMousePosition = WorldToFieldClamped(characterController.transform.position);
-        
-        /*
-        if (Input.GetMouseButtonDown(0))
-        {
-            velocityPressed = 1f;
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            velocityPressed = 0f;
-        }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            densityPressed = 1f;
-        }
-        if (Input.GetMouseButtonUp(1))
-        {
-            densityPressed = 0f;
-        }
-
-        currentMousePosition = Input.mousePosition;
-        */
+        currentPosition = WorldToFieldClamped(characterController.transform.position);
 
         volume.TryGet(out FluidSimulationVolume fluid);
         fluid.velocityPressed.SetValue(new FloatParameter(velocityPressed));
         fluid.densityPressed.SetValue(new FloatParameter(densityPressed));
-        fluid.currentMousePosition.SetValue(new Vector2Parameter(currentMousePosition));
+        fluid.currentPosition.SetValue(new Vector2Parameter(currentPosition));
+        
+        if(jumpVelocity < 0f)
+            fluid.playerVerticalVelocity.SetValue(new FloatParameter(jumpVelocity));
     }
 
     Vector2 WorldToFieldClamped(Vector3 worldPos)

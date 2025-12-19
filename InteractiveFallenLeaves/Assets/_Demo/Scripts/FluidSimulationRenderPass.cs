@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
-using UnityEngine.Rendering.RenderGraphModule.Util;
 using UnityEngine.Rendering.Universal;
 public class FluidSimulationRenderPass : ScriptableRenderPass
 {
@@ -44,8 +43,9 @@ public class FluidSimulationRenderPass : ScriptableRenderPass
     private float gridScale;
     private float velocityPressed;
     private float densityPressed;
-    private Vector2 currentMousePosition;
-    private Vector2 previousMousePosition;
+    private Vector2 currentPosition;
+    private Vector2 previousPosition;
+    private float playerVerticalVelocity;
     private Color densityColor = Color.cyan;
     private Color targetColor = Color.red;
     private float colorChangeInterval = 0.2f;
@@ -150,12 +150,15 @@ public class FluidSimulationRenderPass : ScriptableRenderPass
 
     private void AddVelocity(PassContext passContext, ComputeBuffer velocityBuffer)
     {
-        AddSourceTerm.SetVector("CurrentMousePosition", currentMousePosition);
-        AddSourceTerm.SetVector("PreviousMousePosition", previousMousePosition);
+        AddSourceTerm.SetVector("CurrentPosition", currentPosition);
+        AddSourceTerm.SetVector("PreviousPosition", previousPosition);
         AddSourceTerm.SetFloat("VelocityPressed", velocityPressed);
         AddSourceTerm.SetFloat("VelocityEffectRadius", velocityEffectRadius);
         AddSourceTerm.SetFloat("VelocityFalloff", velocityFalloff);
         AddSourceTerm.SetFloat("VelocityMultiplier", velocityMultiplier);
+        AddSourceTerm.SetFloat("PlayerVerticalVelocity", playerVerticalVelocity);
+        AddSourceTerm.SetFloat("JumpEffectRadius", 50f);
+        AddSourceTerm.SetFloat("JumpVelocityMultiplier", 2f);
         passContext.SetGlobalBuffer("AddedVelocityBuffer", velocityBuffer);
         passContext.DispatchCompute(AddSourceTerm, "AddVelocity", threadGroupNum, threadGroupNum, 1);
     }
@@ -163,7 +166,7 @@ public class FluidSimulationRenderPass : ScriptableRenderPass
     private void AddDensity(PassContext passContext, ComputeBuffer densityBuffer)
     {
         AddSourceTerm.SetVector("DensityColor", densityColor);
-        AddSourceTerm.SetVector("MousePosition", currentMousePosition);
+        AddSourceTerm.SetVector("MousePosition", currentPosition);
         AddSourceTerm.SetFloat("DensityPressed", densityPressed);
         AddSourceTerm.SetFloat("DensityEffectRadius", densityEffectRadius);
         AddSourceTerm.SetFloat("DensityFalloff", densityFalloff);
@@ -323,11 +326,10 @@ public class FluidSimulationRenderPass : ScriptableRenderPass
         // volume parameters
         velocityPressed = volume.velocityPressed.GetValue<float>();
         densityPressed = volume.densityPressed.GetValue<float>();
-        previousMousePosition = currentMousePosition;
-        currentMousePosition = volume.currentMousePosition.GetValue<Vector2>();
-        //currentMousePosition = Camera.main.ScreenToViewportPoint(currentMousePosition);
-        //currentMousePosition = new Vector2(Mathf.Clamp01(currentMousePosition.x), Mathf.Clamp01(currentMousePosition.y));
-        currentMousePosition = new Vector2(currentMousePosition.x * simulationResolution, currentMousePosition.y * simulationResolution);
+        previousPosition = currentPosition;
+        currentPosition = volume.currentPosition.GetValue<Vector2>();
+        currentPosition = new Vector2(currentPosition.x * simulationResolution, currentPosition.y * simulationResolution);
+        playerVerticalVelocity = volume.playerVerticalVelocity.GetValue<float>();
 
         // density color
         lastColorChageTime += Time.deltaTime;

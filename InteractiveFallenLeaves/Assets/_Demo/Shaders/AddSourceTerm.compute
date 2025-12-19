@@ -4,12 +4,16 @@
 
 RWStructuredBuffer<float4> AddedVelocityBuffer; 
 
-float2 CurrentMousePosition;
-float2 PreviousMousePosition;
+float2 CurrentPosition;
+float2 PreviousPosition;
 float VelocityPressed;
 float VelocityEffectRadius;
 float VelocityFalloff;
 float VelocityMultiplier;
+
+float PlayerVerticalVelocity;
+float JumpEffectRadius;
+float JumpVelocityMultiplier;
 
 float DrawDirectionalLineMask(float2 origin, float2 direction, float maxLength, float2 uv, float radius, float feather)
 {
@@ -25,22 +29,39 @@ float DrawDirectionalLineMask(float2 origin, float2 direction, float maxLength, 
     return 1.0 - saturate(lineMask + isBehind + isBeyondLength);
 }
 
+float DrawRadialMask(float2 center, float2 uv, float radius, float feather)
+{
+    float dist = distance(center, uv);
+    return 1.0 - smoothstep(radius, radius + feather, dist);
+}
+
 [numthreads(8, 8, 1)]
 void AddVelocity (uint3 id : SV_DispatchThreadID)
 {
     int2 coord = id.xy;
     
-    float2 mouseMove = CurrentMousePosition - PreviousMousePosition;
+    float2 mouseMove = CurrentPosition - PreviousPosition;
     float moveLength = length(mouseMove);
     
-    if (moveLength < 1e-5)
-        return;
+    float2 moveVelocity = float2(0.0, 0.0);
+    if (moveLength > 1e-5)
+    {
+        float factor = DrawDirectionalLineMask(CurrentPosition, normalize(mouseMove), moveLength, coord, VelocityEffectRadius, VelocityFalloff);
+        moveVelocity = factor * mouseMove * VelocityMultiplier;
+        moveVelocity *= VelocityPressed;
+    }
     
-    float factor = DrawDirectionalLineMask(CurrentMousePosition, normalize(mouseMove), moveLength, coord, VelocityEffectRadius, VelocityFalloff);
-    float2 addedVelocity = factor * mouseMove * VelocityMultiplier;
-    addedVelocity *= VelocityPressed;
-    
-    AddedVelocityBuffer[CoordToIndex(coord)] += float4(addedVelocity, 0.0, 0.0);
+    float2 jumpVelocity = float2(0.0, 0.0);
+    if (abs(PlayerVerticalVelocity) > 1e-5)
+    {
+        float radialFactor = DrawRadialMask(CurrentPosition, coord, JumpEffectRadius, VelocityFalloff);
+        float2 delta = coord - CurrentPosition;
+        float len = length(delta);
+        float2 dir = (len > 1e-5) ? delta / len : float2(0.0, 0.0);
+        jumpVelocity = -dir * abs(PlayerVerticalVelocity) * JumpVelocityMultiplier * radialFactor;
+    }
+
+    AddedVelocityBuffer[CoordToIndex(coord)] += float4(moveVelocity + jumpVelocity, 0.0, 0.0);
 }
 
 
